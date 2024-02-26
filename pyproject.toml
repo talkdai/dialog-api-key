@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "dialog-api-key"
+version = "0.1.0"
+description = "Dialog's API Key authorization plugin."
+authors = ["Walison Filipe <walisonfilipe@hotmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+python-decouple = "^3.8"
+fastapi = "^0.109.2"
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.0.1"
+httpx = "^0.26.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.plugins.dialog]
+api_key = "dialog_api_key.plugin"
