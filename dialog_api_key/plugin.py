@@ -2,6 +2,7 @@ from http import HTTPStatus
 
 from decouple import Csv, config
 from fastapi import FastAPI, Request
+from fastapi.openapi.utils import get_openapi
 from fastapi.responses import JSONResponse
 
 
@@ -41,4 +42,35 @@ async def api_key_middleware(request: Request, call_next):
 
 
 def register_plugin(app: FastAPI):
+    def custom_openapi():
+        if app.openapi_schema:
+            return app.openapi_schema
+
+        schema = get_openapi(
+            title=app.title,
+            version=app.version,
+            description=app.description,
+            summary=app.summary,
+            routes=app.routes,
+        )
+        schema["components"]["securitySchemes"] = {
+            "ApiKeyAuth": {
+                "type": "apiKey",
+                "in": "header",
+                "name": settings.header,
+            }
+        }
+        schema["security"] = [
+            {"ApiKeyAuth": []},
+        ]
+        for path in settings.except_paths:
+            try:
+                schema["paths"][path]["security"] = []
+            except KeyError:
+                continue
+
+        app.openapi_schema = schema
+        return schema
+
+    app.openapi = custom_openapi
     app.middleware("http")(api_key_middleware)
